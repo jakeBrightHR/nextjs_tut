@@ -1,6 +1,8 @@
 'use server';
 
+import { signIn } from '@/auth';
 import { sql } from '@vercel/postgres';
+import { AuthError } from 'next-auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -34,7 +36,6 @@ export async function createInvoice(prevState: State, formData: FormData) {
         amount: formData.get('amount'),
         status: formData.get('status'),
     });
-    console.log(validatedFields);
 
     // If form validation fails, return errors early. Otherwise, continue.
     if (!validatedFields.success) {
@@ -73,8 +74,6 @@ export async function updateInvoice(id: string, prevState: State, formData: Form
         status: formData.get('status'),
     });
 
-    console.log(validatedFields);
-
     if (!validatedFields.success) {
         return {
             errors: validatedFields.error.flatten().fieldErrors,
@@ -108,5 +107,21 @@ export async function deleteInvoice(id: string) {
         return { message: 'Deleted Invoice' };
     } catch (error) {
         return { message: 'Database Error: Failed to Delete Invoice' };
+    }
+}
+
+export async function authenticate(prevState: string | undefined, formData: FormData) {
+    try {
+        await signIn('credentials', formData);
+    } catch (error) {
+        if (error instanceof AuthError) {
+            switch (error.type) {
+                case 'CredentialsSignin':
+                    return 'Invalid credentials';
+                default:
+                    return 'Something went wrong';
+            }
+        }
+        throw error;
     }
 }
