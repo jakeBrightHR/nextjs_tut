@@ -16,7 +16,7 @@ export default function AnimatingCircle() {
                 ref={ref}
                 className="bg-white w-[50px] h-[50px]"
                 animate={{
-                    scale: [1, 2, 2, 1, 1],
+                    scale: [1, 2, 5, 1, 1],
                     rotate: [0, 0, 180, 180, 0],
                     borderRadius: ['0%', '0%', '50%', '50%', '0%']
                 }}
